@@ -6,31 +6,31 @@ import { Toaster } from 'react-hot-toast';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: '技术博客 - 分享最新技术知识',
-  description: '一个专注于技术分享的博客平台，涵盖前端、后端、全栈开发等技术内容',
-  keywords: ['技术博客', '前端开发', '后端开发', 'React', 'Next.js', 'TypeScript'],
-  authors: [{ name: '技术博客团队' }],
-  creator: '技术博客',
-  publisher: '技术博客',
+  title: 'Cityzens 技术博客 - 曼城球迷的技术交流中心',
+  description: '一个专注于分享前沿技术、比赛分析、足球文化的曼城球迷专属博客平台。',
+  keywords: ['曼城', '技术博客', 'Cityzens', '足球', '英超', 'Next.js', 'TypeScript'],
+  authors: [{ name: 'Cityzens 技术团队' }],
+  creator: 'Cityzens 技术博客',
+  publisher: 'Cityzens 技术博客',
   formatDetection: {
     email: false,
     address: false,
     telephone: false,
   },
-  metadataBase: new URL('https://blog.example.com'),
+  metadataBase: new URL('https://cityzens-blog.example.com'),
   openGraph: {
     type: 'website',
     locale: 'zh_CN',
-    url: 'https://blog.example.com',
-    title: '技术博客',
-    description: '分享最新技术知识和实践经验',
-    siteName: '技术博客',
+    url: 'https://cityzens-blog.example.com',
+    title: 'Cityzens 技术博客',
+    description: '分享曼城相关的技术见解、比赛分析与足球文化。',
+    siteName: 'Cityzens 技术博客',
   },
   twitter: {
     card: 'summary_large_image',
-    title: '技术博客',
-    description: '分享最新技术知识和实践经验',
-    creator: '@techblog',
+    title: 'Cityzens 技术博客',
+    description: '分享曼城相关的技术见解、比赛分析与足球文化。',
+    creator: '@ManCityTech',
   },
   robots: {
     index: true,
@@ -43,6 +43,7 @@ export const metadata: Metadata = {
       'max-snippet': -1,
     },
   },
+  themeColor: '#6CABDD',
 };
 
 export default function RootLayout({
@@ -52,28 +53,39 @@ export default function RootLayout({
 }) {
   return (
     <html lang="zh-CN">
-      <body className={inter.className}>
+      <body className={`${inter.className} bg-stadium text-city-blue-900 antialiased`}>
         {children}
         <Toaster
           position="top-right"
           toastOptions={{
             duration: 4000,
             style: {
-              background: '#363636',
-              color: '#fff',
+              background: '#1C2C5C',
+              color: '#FFFFFF',
+              border: '1px solid #6CABDD',
+              borderRadius: '8px',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
             },
             success: {
               duration: 3000,
               iconTheme: {
-                primary: '#10B981',
-                secondary: '#fff',
+                primary: '#6CABDD',
+                secondary: '#FFFFFF',
+              },
+              style: {
+                background: '#00A859',
+                color: '#FFFFFF',
               },
             },
             error: {
               duration: 4000,
               iconTheme: {
-                primary: '#EF4444',
-                secondary: '#fff',
+                primary: '#FFD700',
+                secondary: '#1C2C5C',
+              },
+              style: {
+                background: '#D32F2F',
+                color: '#FFFFFF',
               },
             },
           }}

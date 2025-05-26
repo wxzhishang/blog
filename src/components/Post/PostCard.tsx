@@ -2,47 +2,53 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { Calendar, Eye, Heart, MessageCircle, Clock, User } from 'lucide-react';
+import { Calendar, Eye, Heart, MessageCircle, Clock, User, Zap, Tag, Star } from 'lucide-react'; // 添加了 Zap, Tag, Star 图标
 import { Post } from '@/types';
 import { formatDate, formatRelativeTime, calculateReadingTime } from '@/lib/utils';
+import { FootballIcon, TrophyIcon, CaptainBandIcon, JerseyNumberIcon } from '@/components/Layout/CityIcons'; // 曼城主题图标
 
 interface PostCardProps {
   post: Post;
   variant?: 'default' | 'featured' | 'compact';
+  className?: string; // 允许传递额外的 class
 }
 
-export default function PostCard({ post, variant = 'default' }: PostCardProps) {
+export default function PostCard({ post, variant = 'default', className = '' }: PostCardProps) {
   const isSticky = post.isSticky;
   const estimatedReadingTime = post.readingTime || calculateReadingTime(post.content);
+  const categoryName = post.category?.name || '战术分析';
+  const categorySlug = post.category?.slug || 'general';
+
+  const cardBaseClasses = "transition-all duration-300 transform";
+  const cardHoverClasses = "hover:shadow-trophy hover:-translate-y-1 hover:border-city-blue-300";
 
   if (variant === 'compact') {
     return (
-      <article className="flex items-center space-x-4 p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1">
+      <article className={`flex items-center space-x-4 p-4 bg-white/80 backdrop-blur-sm rounded-lg shadow-football border border-city-blue-100/50 ${cardBaseClasses} ${cardHoverClasses} ${className}`}>
         {post.coverImage && (
-          <div className="flex-shrink-0">
+          <div className="flex-shrink-0 w-20 h-16 md:w-24 md:h-20 relative">
             <Image
               src={post.coverImage}
               alt={post.title}
-              width={80}
-              height={60}
+              fill
               className="rounded-md object-cover"
             />
           </div>
         )}
         <div className="flex-1 min-w-0">
           <Link href={`/posts/${post.slug}`}>
-            <h3 className="text-lg font-semibold text-gray-900 hover:text-primary-600 transition-colors line-clamp-2">
+            <h3 className="text-base md:text-lg font-semibold text-city-blue-800 hover:text-city-blue-600 transition-colors line-clamp-2">
               {post.title}
             </h3>
           </Link>
-          <div className="flex items-center space-x-4 mt-2 text-sm text-gray-500">
+          <div className="flex items-center space-x-3 mt-2 text-xs md:text-sm text-city-blue-500">
             <span className="flex items-center">
-              <Calendar className="w-4 h-4 mr-1" />
+              <Calendar className="w-3.5 h-3.5 mr-1 text-city-blue-400" />
               {formatDate(post.publishedAt || post.createdAt)}
             </span>
             <span className="flex items-center">
-              <Eye className="w-4 h-4 mr-1" />
-              {post.views}
+              <Eye className="w-3.5 h-3.5 mr-1 text-city-blue-400" />
+              {post.views || 0}
             </span>
           </div>
         </div>
@@ -52,43 +58,40 @@ export default function PostCard({ post, variant = 'default' }: PostCardProps) {
 
   if (variant === 'featured') {
     return (
-      <article className="relative bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-2">
+      <article className={`relative bg-city-blue-800 rounded-xl shadow-lg overflow-hidden ${cardBaseClasses} hover:shadow-xl hover:-translate-y-1.5 ${className}`}>
         {isSticky && (
-          <div className="absolute top-4 left-4 z-10">
-            <span className="bg-red-500 text-white px-2 py-1 rounded-full text-xs font-medium">
-              置顶
-            </span>
+          <div className="absolute top-3 left-3 z-10 flex items-center bg-city-gold text-city-blue-900 px-2.5 py-1 rounded-full text-xs font-bold shadow-md">
+            <CaptainBandIcon className="w-4 h-4 mr-1.5" /> 置顶推荐
           </div>
         )}
         
         {post.coverImage && (
-          <div className="relative h-64 md:h-80">
+          <div className="relative h-64 md:h-80 w-full">
             <Image
               src={post.coverImage}
               alt={post.title}
               fill
               className="object-cover"
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-            <div className="absolute bottom-6 left-6 right-6 text-white">
-              <Link href={`/categories/${post.category.slug}`}>
-                <span className="inline-block bg-primary-600 text-white px-3 py-1 rounded-full text-sm font-medium mb-3 hover:bg-primary-700 transition-colors">
-                  {post.category.name}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent" />
+            <div className="absolute bottom-0 left-0 right-0 p-5 md:p-6 text-white">
+              <Link href={`/categories/${categorySlug}`}>
+                <span className="inline-block bg-city-gold text-city-blue-900 px-3 py-1 rounded-full text-xs sm:text-sm font-semibold mb-2 hover:bg-yellow-300 transition-colors shadow">
+                  {categoryName}
                 </span>
               </Link>
               <Link href={`/posts/${post.slug}`}>
-                <h2 className="text-2xl md:text-3xl font-bold mb-2 hover:text-primary-200 transition-colors">
+                <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-2 hover:text-city-gold transition-colors line-clamp-2 sm:line-clamp-3">
                   {post.title}
                 </h2>
               </Link>
-              <p className="text-gray-200 mb-4 line-clamp-2">
-                {post.excerpt}
-              </p>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-4 text-sm">
+              {post.excerpt && <p className="text-city-blue-100 mb-3 text-sm sm:text-base line-clamp-2">{post.excerpt}</p>}
+              <div className="flex items-center justify-between text-xs sm:text-sm">
+                <div className="flex items-center space-x-3 text-city-blue-200">
                   <span className="flex items-center">
                     <User className="w-4 h-4 mr-1" />
-                    {post.author.username}
+                    {post.author?.username || '蓝月亮小编'}
                   </span>
                   <span className="flex items-center">
                     <Calendar className="w-4 h-4 mr-1" />
@@ -107,101 +110,102 @@ export default function PostCard({ post, variant = 'default' }: PostCardProps) {
     );
   }
 
+  // 默认变体
   return (
-    <article className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+    <article className={`bg-white rounded-xl shadow-football overflow-hidden border border-city-blue-100/70 ${cardBaseClasses} ${cardHoverClasses} ${className}`}>
       {isSticky && (
-        <div className="bg-red-50 border-l-4 border-red-500 p-2">
-          <span className="text-red-700 text-sm font-medium">📌 置顶文章</span>
+        <div className="bg-city-gold/10 border-l-4 border-city-gold p-3 flex items-center">
+          <CaptainBandIcon className="w-5 h-5 mr-2 text-city-gold" /> 
+          <span className="text-city-gold text-sm font-semibold">置顶战报</span>
         </div>
       )}
       
       {post.coverImage && (
-        <div className="relative h-48">
+        <div className="relative h-48 md:h-52 w-full group">
           <Image
             src={post.coverImage}
             alt={post.title}
             fill
-            className="object-cover"
+            className="object-cover group-hover:scale-105 transition-transform duration-300"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
+           <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-70 group-hover:opacity-100 transition-opacity"></div>
         </div>
       )}
       
-      <div className="p-6">
+      <div className="p-5 md:p-6">
         <div className="flex items-center justify-between mb-3">
-          <Link href={`/categories/${post.category.slug}`}>
-            <span className="inline-block bg-primary-100 text-primary-800 px-3 py-1 rounded-full text-sm font-medium hover:bg-primary-200 transition-colors">
-              {post.category.name}
+          <Link href={`/categories/${categorySlug}`}>
+            <span className="inline-block bg-city-blue-100 text-city-blue-700 px-3 py-1 rounded-full text-xs sm:text-sm font-semibold hover:bg-city-blue-200 hover:text-city-blue-800 transition-colors">
+              {categoryName}
             </span>
           </Link>
-          <span className="text-sm text-gray-500">
+          <span className="text-xs text-city-blue-500">
             {formatRelativeTime(post.publishedAt || post.createdAt)}
           </span>
         </div>
         
-        <Link href={`/posts/${post.slug}`}>
-          <h2 className="text-xl font-bold text-gray-900 mb-3 hover:text-primary-600 transition-colors line-clamp-2">
+        <Link href={`/posts/${post.slug}
+`}>
+          <h2 className="text-lg md:text-xl font-bold text-city-blue-900 mb-2 hover:text-city-blue-600 transition-colors line-clamp-2">
             {post.title}
           </h2>
         </Link>
         
-        <p className="text-gray-600 mb-4 line-clamp-3">
-          {post.excerpt}
-        </p>
+        {post.excerpt && <p className="text-city-blue-700 text-sm mb-4 line-clamp-3 leading-relaxed">{post.excerpt}</p>}
         
-        <div className="flex flex-wrap gap-2 mb-4">
-          {post.tags.slice(0, 3).map((tag) => (
-            <Link key={tag.id} href={`/tags/${tag.slug}`}>
-              <span 
-                className="inline-block px-2 py-1 rounded text-xs font-medium hover:opacity-80 transition-opacity"
-                style={{ 
-                  backgroundColor: tag.color + '20', 
-                  color: tag.color 
-                }}
-              >
-                #{tag.name}
+        {post.tags && post.tags.length > 0 && (
+          <div className="flex flex-wrap gap-2 mb-4">
+            {post.tags.slice(0, 3).map((tag) => (
+              <Link key={tag.id} href={`/tags/${tag.slug}`}>
+                <span 
+                  className="btn-secondary text-xs px-2.5 py-1 flex items-center"
+                >
+                  <Tag className="w-3 h-3 mr-1 opacity-70"/> {tag.name}
+                </span>
+              </Link>
+            ))}
+            {post.tags.length > 3 && (
+              <span className="text-xs text-city-blue-500 bg-city-blue-50 px-2 py-1 rounded-md">
+                +{post.tags.length - 3} 更多
               </span>
-            </Link>
-          ))}
-          {post.tags.length > 3 && (
-            <span className="text-xs text-gray-500">
-              +{post.tags.length - 3} 更多
-            </span>
-          )}
-        </div>
+            )}
+          </div>
+        )}
         
-        <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-          <div className="flex items-center space-x-2">
-            {post.author.avatar ? (
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between pt-4 border-t border-city-blue-100">
+          <div className="flex items-center space-x-2 mb-3 sm:mb-0">
+            {post.author?.avatar ? (
               <Image
                 src={post.author.avatar}
-                alt={post.author.username}
-                width={24}
-                height={24}
-                className="rounded-full"
+                alt={post.author.username || 'author'}
+                width={28}
+                height={28}
+                className="rounded-full border-2 border-city-blue-200"
               />
             ) : (
-              <div className="w-6 h-6 bg-gray-300 rounded-full flex items-center justify-center">
-                <User className="w-3 h-3" />
+              <div className="w-7 h-7 bg-city-blue-200 rounded-full flex items-center justify-center border-2 border-city-blue-300">
+                <User className="w-4 h-4 text-city-blue-600" />
               </div>
             )}
-            <span className="text-sm text-gray-600">{post.author.username}</span>
+            <span className="text-sm text-city-blue-700 font-medium">{post.author?.username || '蓝月亮小编'}</span>
           </div>
           
-          <div className="flex items-center space-x-4 text-sm text-gray-500">
-            <span className="flex items-center">
-              <Eye className="w-4 h-4 mr-1" />
-              {post.views}
+          <div className="flex items-center space-x-3 text-xs text-city-blue-500">
+            <span className="flex items-center" title="浏览量">
+              <Eye className="w-4 h-4 mr-1 text-city-blue-400" />
+              {post.views || 0}
             </span>
-            <span className="flex items-center">
-              <Heart className="w-4 h-4 mr-1" />
-              {post.likes}
+            <span className="flex items-center" title="点赞数">
+              <Heart className="w-4 h-4 mr-1 text-city-blue-400" />
+              {post.likes || 0}
             </span>
-            <span className="flex items-center">
-              <MessageCircle className="w-4 h-4 mr-1" />
-              {post.commentsCount}
-            </span>
-            <span className="flex items-center">
-              <Clock className="w-4 h-4 mr-1" />
+            {/* <span className="flex items-center" title="评论数">
+              <MessageCircle className="w-4 h-4 mr-1 text-city-blue-400" />
+              {post.commentsCount || 0}
+            </span> */}
+            <span className="flex items-center" title="阅读时间">
+              <Clock className="w-4 h-4 mr-1 text-city-blue-400" />
               {estimatedReadingTime}分钟
             </span>
           </div>

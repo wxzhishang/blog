@@ -5,27 +5,169 @@
 @layer base {
   html {
     scroll-behavior: smooth;
+    overflow-y: auto;
   }
   
   body {
     @apply bg-gray-50 text-gray-900;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* 曼城主题全局样式 */
+  ::selection {
+    @apply bg-city-blue-300/30 text-city-blue-900;
+  }
+
+  /* 自定义滚动条 */
+  ::-webkit-scrollbar {
+    @apply w-2;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-city-blue-100;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-city-blue-300 rounded-full hover:bg-city-blue-400 transition-colors duration-200;
   }
 }
 
 @layer components {
+  /* 按钮样式 */
   .btn-primary {
-    @apply bg-primary-600 hover:bg-primary-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200;
+    @apply bg-city-blue-300 hover:bg-city-blue-400 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 hover:shadow-football;
   }
   
   .btn-secondary {
-    @apply bg-gray-200 hover:bg-gray-300 text-gray-900 font-medium py-2 px-4 rounded-lg transition-colors duration-200;
+    @apply bg-city-blue-100 hover:bg-city-blue-200 text-city-blue-900 font-medium py-2 px-4 rounded-lg transition-all duration-200;
   }
   
+  .btn-gold {
+    @apply bg-city-gold hover:bg-city-gold/90 text-city-blue-900 font-bold py-2 px-4 rounded-full transition-all duration-300 hover:scale-105 shadow-trophy;
+  }
+  
+  /* 卡片样式 */
   .card {
-    @apply bg-white rounded-lg shadow-md p-6;
+    @apply bg-white rounded-xl shadow-football p-6 border-l-4 border-city-blue-300 hover:shadow-trophy transition-all duration-300;
   }
   
+  .card-pitch {
+    @apply bg-white rounded-xl shadow-football p-6 border-l-4 border-pitch-green hover:shadow-pitch transition-all duration-300;
+  }
+  
+  .card-trophy {
+    @apply bg-white rounded-xl shadow-football p-6 border-l-4 border-city-gold hover:shadow-trophy transition-all duration-300;
+  }
+  
+  /* 输入框样式 */
   .input-field {
-    @apply w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent;
+    @apply w-full px-3 py-2 border-2 border-city-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-city-blue-300 focus:border-transparent transition-all duration-200;
+  }
+
+  .input-field-goal {
+    @apply w-full pl-10 pr-12 py-2 rounded-full border-2 border-city-gold/30 bg-white/90 backdrop-blur-sm focus:border-city-gold focus:outline-none transition-all duration-200;
+  }
+  
+  /* 标签样式 */
+  .tag {
+    @apply inline-flex items-center px-3 py-2 rounded-full text-sm font-medium hover:scale-105 transition-all duration-200 shadow-sm hover:shadow-md;
+  }
+
+  .tag-jersey {
+    @apply rounded-full bg-city-blue-300 text-white flex items-center justify-center font-bold text-sm;
+  }
+  
+  /* 链接样式 */
+  .link-football {
+    @apply flex items-center text-city-blue-600 hover:text-city-blue-800 font-medium group transition-all duration-200;
+  }
+
+  .link-football-icon {
+    @apply w-4 h-4 ml-2 group-hover:animate-football-bounce;
+  }
+  
+  /* 标题样式 */
+  .title-gradient {
+    @apply bg-gradient-to-r from-city-blue-900 to-city-blue-600 bg-clip-text text-transparent;
+  }
+
+  .title-gold {
+    @apply text-city-gold font-bold;
+  }
+  
+  /* 背景样式 */
+  .bg-stadium {
+    @apply bg-gradient-to-br from-gray-50 via-city-blue-50 to-gray-100 relative;
+  }
+
+  .bg-pitch {
+    @apply bg-gradient-to-r from-pitch-green/20 via-pitch-green/10 to-pitch-green/20;
+  }
+  
+  /* 动画容器 */
+  .animate-container {
+    @apply relative overflow-hidden;
+  }
+
+  .animate-decoration {
+    @apply absolute inset-0;
+  }
+  
+  /* 装饰元素 */
+  .decoration-sail {
+    @apply animate-sail-float opacity-10;
+  }
+
+  .decoration-football {
+    @apply animate-football-bounce opacity-10;
+  }
+
+  .decoration-trophy {
+    @apply animate-trophy-glow;
+  }
+
+  .decoration-stadium {
+    @apply animate-stadium-pulse opacity-5;
+  }
+
+  .pattern-background {
+    background-image: url("data:image/svg+xml,%3Csvg width='52' height='26' viewBox='0 0 52 26' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%236cabd_d' fill-opacity='0.07'%3E%3Cpath d='M10 10c0-2.21-1.79-4-4-4-3.314 0-6-2.686-6-6h2c0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6 0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6 0 2.21 1.79 4 4 4v2c-3.314 0-6-2.686-6-6 0-2.21-1.79-4-4-4-3.314 0-6-2.686-6-6zm25.464-1.95l8.486 8.486-1.414 1.414-8.486-8.486 1.414-1.414zM41 0v5.63c0 2.21-1.79 4-4 4H31.37C31.37 7.79 29.582 6 27.37 6H16.63C14.418 6 12.63 7.79 12.63 10H7c-2.21 0-4-1.79-4-4V0h38z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  }
+  .pattern-background-dark {
+    background-image: url("data:image/svg+xml,%3Csvg width='52' height='26' viewBox='0 0 52 26' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%23FFFFFF' fill-opacity='0.05'%3E%3Cpath d='M10 10c0-2.21-1.79-4-4-4-3.314 0-6-2.686-6-6h2c0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6 0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6 0 2.21 1.79 4 4 4v2c-3.314 0-6-2.686-6-6 0-2.21-1.79-4-4-4-3.314 0-6-2.686-6-6zm25.464-1.95l8.486 8.486-1.414 1.414-8.486-8.486 1.414-1.414zM41 0v5.63c0 2.21-1.79 4-4 4H31.37C31.37 7.79 29.582 6 27.37 6H16.63C14.418 6 12.63 7.79 12.63 10H7c-2.21 0-4-1.79-4-4V0h38z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  }
+  .btn-tag-blue {
+    @apply bg-city-blue-500 text-white hover:bg-city-blue-600;
+  }
+  .btn-tag-gold {
+    @apply bg-city-gold text-city-blue-900 hover:bg-yellow-300;
+  }
+  .btn-tag-darkblue {
+    @apply bg-city-blue-800 text-city-blue-100 hover:bg-city-blue-900;
+  }
+  .btn-tag-green { /* 草场绿 */
+    @apply bg-pitch-green text-white hover:bg-green-600;
+  }
+  
+  /* 新增更多变体 */
+  .btn-tag-skyblue-outline {
+    @apply bg-transparent border-2 border-city-blue-400 text-city-blue-600 hover:bg-city-blue-400 hover:text-white;
+  }
+  .btn-tag-gold-outline {
+    @apply bg-transparent border-2 border-city-gold text-city-gold hover:bg-city-gold hover:text-city-blue-900;
+  }
+  .btn-tag-darkblue-outline {
+    @apply bg-transparent border-2 border-city-blue-700 text-city-blue-700 hover:bg-city-blue-700 hover:text-white;
+  }
+  .btn-tag-gray { /* 一个中性色作为调剂 */
+    @apply bg-gray-200 text-gray-700 hover:bg-gray-300;
+  }
+  .btn-tag-blue-light {
+    @apply bg-city-blue-100 text-city-blue-700 hover:bg-city-blue-200;
+  }
+  .btn-tag-gold-light {
+    @apply bg-yellow-100 text-yellow-700 hover:bg-yellow-200; /* 浅金色 */
   }
 } 
