@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { Search, Filter, Calendar, User, Tag, X } from 'lucide-react'
@@ -17,7 +17,7 @@ interface SearchFilters {
   sortBy: string
 }
 
-export default function SearchPage() {
+function SearchPageContent() {
   const searchParams = useSearchParams()
   const { posts, categories, tags, users, initializeData } = useBlogStore()
   const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '')
@@ -343,5 +343,13 @@ export default function SearchPage() {
         </div>
       )}
     </div>
+  )
+}
+
+export default function SearchPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-gray-50 flex items-center justify-center">加载中...</div>}>
+      <SearchPageContent />
+    </Suspense>
   )
 } 

@@ -8,6 +8,10 @@ export interface User {
   role: 'admin' | 'author' | 'visitor';
   createdAt: Date;
   updatedAt: Date;
+  lastLoginAt?: string;
+  isActive: boolean;
+  postCount: number;
+  commentCount: number;
 }
 
 export interface Category {

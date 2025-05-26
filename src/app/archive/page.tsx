@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useEffect, useState } from 'react'
 import { Metadata } from 'next'
 import Link from 'next/link'
 import { Calendar, Clock, ChevronDown, ChevronRight } from 'lucide-react'
@@ -15,65 +15,63 @@ import { Post } from '@/types'
 //   keywords: ['归档', '文章列表', '技术博客', '时间线'],
 // }
 
+interface MonthGroup {
+  month: number
+  monthName: string
+  posts: Post[]
+  count: number
+}
+
 interface ArchiveGroup {
   year: number
-  months: {
-    month: number
-    monthName: string
-    posts: Post[]
-    count: number
-  }[]
+  months: MonthGroup[]
   totalPosts: number
 }
 
 export default function ArchivePage() {
   const { posts } = useBlogStore()
+  const [archiveGroups, setArchiveGroups] = useState<ArchiveGroup[]>([])
   const [expandedYears, setExpandedYears] = useState<Set<number>>(new Set([new Date().getFullYear()]))
 
-  // 按年份和月份分组文章
-  const archiveData = useMemo(() => {
-    const grouped: { [year: number]: { [month: number]: Post[] } } = {}
-    
-    posts.forEach((post: Post) => {
+  useEffect(() => {
+    // 按年月分组文章
+    const groups = posts.reduce((acc: ArchiveGroup[], post: Post) => {
       const date = new Date(post.publishedAt || post.createdAt)
       const year = date.getFullYear()
       const month = date.getMonth() + 1
-      
-      if (!grouped[year]) {
-        grouped[year] = {}
+      const monthName = new Date(year, month - 1).toLocaleDateString('zh-CN', { month: 'long' })
+
+      let yearGroup = acc.find(g => g.year === year)
+      if (!yearGroup) {
+        yearGroup = { year, months: [], totalPosts: 0 }
+        acc.push(yearGroup)
       }
-      if (!grouped[year][month]) {
-        grouped[year][month] = []
+
+      let monthGroup = yearGroup.months.find(m => m.month === month)
+      if (!monthGroup) {
+        monthGroup = { month, monthName, posts: [], count: 0 }
+        yearGroup.months.push(monthGroup)
       }
-      
-      grouped[year][month].push(post)
+
+      monthGroup.posts.push(post)
+      monthGroup.count = monthGroup.posts.length
+      yearGroup.totalPosts += 1
+      return acc
+    }, [])
+
+    // 按年月排序
+    groups.sort((a: ArchiveGroup, b: ArchiveGroup) => b.year - a.year)
+    groups.forEach((group: ArchiveGroup) => {
+      group.months.sort((a: MonthGroup, b: MonthGroup) => b.month - a.month)
+      group.months.forEach((month: MonthGroup) => {
+        month.posts.sort((a: Post, b: Post) => 
+          new Date(b.publishedAt || b.createdAt).getTime() - 
+          new Date(a.publishedAt || a.createdAt).getTime()
+        )
+      })
     })
 
-    // 转换为排序的数组格式
-    const archiveGroups: ArchiveGroup[] = Object.keys(grouped)
-      .map(year => parseInt(year))
-      .sort((a, b) => b - a) // 按年份降序
-      .map(year => {
-        const months = Object.keys(grouped[year])
-          .map(month => parseInt(month))
-          .sort((a, b) => b - a) // 按月份降序
-          .map(month => ({
-            month,
-            monthName: new Date(year, month - 1).toLocaleDateString('zh-CN', { month: 'long' }),
-            posts: grouped[year][month].sort((a, b) => 
-              new Date(b.publishedAt || b.createdAt).getTime() - new Date(a.publishedAt || a.createdAt).getTime()
-            ),
-            count: grouped[year][month].length
-          }))
-
-        return {
-          year,
-          months,
-          totalPosts: months.reduce((sum, m) => sum + m.count, 0)
-        }
-      })
-
-    return archiveGroups
+    setArchiveGroups(groups)
   }, [posts])
 
   const toggleYear = (year: number) => {
@@ -87,7 +85,7 @@ export default function ArchivePage() {
   }
 
   const totalPosts = posts.length
-  const totalYears = archiveData.length
+  const totalYears = archiveGroups.length
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -115,7 +113,7 @@ export default function ArchivePage() {
 
       {/* Archive Content */}
       <div className="max-w-4xl mx-auto px-4 py-8">
-        {archiveData.length === 0 ? (
+        {archiveGroups.length === 0 ? (
           <div className="text-center py-12">
             <Calendar className="w-16 h-16 text-gray-300 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-gray-900 mb-2">暂无文章</h3>
@@ -123,7 +121,7 @@ export default function ArchivePage() {
           </div>
         ) : (
           <div className="space-y-6">
-            {archiveData.map((yearGroup) => (
+            {archiveGroups.map((yearGroup) => (
               <div key={yearGroup.year} className="bg-white rounded-lg shadow-sm border">
                 {/* Year Header */}
                 <button
@@ -235,7 +233,7 @@ export default function ArchivePage() {
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-purple-600">
-                  {archiveData.reduce((sum, year) => sum + year.months.length, 0)}
+                  {archiveGroups.reduce((sum, year) => sum + year.months.length, 0)}
                 </div>
                 <div className="text-sm text-gray-500">活跃月份</div>
               </div>

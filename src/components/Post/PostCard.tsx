@@ -17,7 +17,7 @@ export default function PostCard({ post, variant = 'default' }: PostCardProps) {
 
   if (variant === 'compact') {
     return (
-      <article className="flex items-center space-x-4 p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
+      <article className="flex items-center space-x-4 p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1">
         {post.coverImage && (
           <div className="flex-shrink-0">
             <Image
@@ -52,7 +52,7 @@ export default function PostCard({ post, variant = 'default' }: PostCardProps) {
 
   if (variant === 'featured') {
     return (
-      <article className="relative bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
+      <article className="relative bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-2">
         {isSticky && (
           <div className="absolute top-4 left-4 z-10">
             <span className="bg-red-500 text-white px-2 py-1 rounded-full text-xs font-medium">
@@ -108,7 +108,7 @@ export default function PostCard({ post, variant = 'default' }: PostCardProps) {
   }
 
   return (
-    <article className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+    <article className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
       {isSticky && (
         <div className="bg-red-50 border-l-4 border-red-500 p-2">
           <span className="text-red-700 text-sm font-medium">📌 置顶文章</span>

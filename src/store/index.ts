@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 import { Post, Category, Tag, Comment, User, SearchResult, BlogStats } from '@/types';
 import { mockPosts, mockCategories, mockTags, mockComments, mockUsers } from '@/data/mockData';
+import { useCategoryStore } from './categoryStore';
 
 interface BlogState {
   // Posts
@@ -295,4 +296,7 @@ export const useBlogStore = create<BlogState & BlogActions>()(
 );
 
 // 为了兼容性，也导出为blogStore
-export const blogStore = useBlogStore; 
+export const blogStore = useBlogStore;
+
+// 导出组合后的store
+export const useStore = useCategoryStore; 
