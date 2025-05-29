@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useParams } from 'next/navigation';
 import Layout from '@/components/Layout/Layout';
 import MarkdownRenderer from '@/components/Post/MarkdownRenderer';
@@ -36,20 +36,35 @@ export default function PostDetailPage() {
   } = useBlogStore();
 
   const [isLiked, setIsLiked] = useState(false);
+  const viewsIncrementedRef = useRef<string | null>(null);
 
+  // 初始化数据，只运行一次
   useEffect(() => {
     initializeData();
-  }, [initializeData]);
+  }, []); // 移除 initializeData 依赖
 
+  // 根据 slug 查找并设置当前文章
   useEffect(() => {
     if (slug && posts.length > 0) {
       const post = getPostBySlug(slug);
       if (post) {
         setCurrentPost(post);
-        incrementPostViews(post.id);
       }
     }
-  }, [slug, posts, getPostBySlug, setCurrentPost, incrementPostViews]);
+  }, [slug, posts.length]); // 简化依赖数组，移除函数依赖
+
+  // 增加浏览量，确保每个文章只增加一次
+  useEffect(() => {
+    if (currentPost && viewsIncrementedRef.current !== currentPost.id) {
+      incrementPostViews(currentPost.id);
+      viewsIncrementedRef.current = currentPost.id;
+    }
+  }, [currentPost?.id]); // 只依赖 currentPost.id 而不是整个 currentPost 对象
+
+  // 重置浏览量增加标记当 slug 改变时
+  useEffect(() => {
+    viewsIncrementedRef.current = null;
+  }, [slug]);
 
   const handleLike = () => {
     if (currentPost) {

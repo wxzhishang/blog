@@ -40,7 +40,7 @@ export default function TagsPage() {
   useEffect(() => {
     initializeData();
     document.title = '球员/技术标签 - Cityzens 技术博客';
-  }, [initializeData]);
+  }, []);
 
   const tagsWithCounts = useMemo(() => {
     return tags.map((tag: TagType) => ({

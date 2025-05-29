@@ -145,8 +145,7 @@ export default function PostCard({ post, variant = 'default', className = '' }: 
           </span>
         </div>
         
-        <Link href={`/posts/${post.slug}
-`}>
+        <Link href={`/posts/${post.slug}`}>
           <h2 className="text-lg md:text-xl font-bold text-city-blue-900 mb-2 hover:text-city-blue-600 transition-colors line-clamp-2">
             {post.title}
           </h2>

@@ -1,11 +1,12 @@
 'use client';
 
-import { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import Layout from '@/components/Layout/Layout';
 import PostCard from '@/components/Post/PostCard';
 import { useBlogStore } from '@/store';
-import { TrendingUp, Clock, Users, BookOpen } from 'lucide-react';
+import { TrendingUp, Clock, Users, BookOpen, Search } from 'lucide-react';
 import Link from 'next/link';
+import { formatDate } from '@/lib/utils';
 import { 
   CityBadgeIcon, 
   FootballIcon, 
@@ -14,6 +15,7 @@ import {
   JerseyNumberIcon,
   TacticsBoardIcon 
 } from '@/components/Layout/CityIcons';
+import { mockPosts, mockCategories, mockTags } from '@/data/mockData';
 
 export default function HomePage() {
   const { 
@@ -24,11 +26,23 @@ export default function HomePage() {
     getFilteredPosts 
   } = useBlogStore();
 
+  const [todayViews, setTodayViews] = useState(0);
+
   useEffect(() => {
     initializeData();
-  }, [initializeData]);
+  }, []);
 
-  const filteredPosts = getFilteredPosts();
+  // 客户端设置今日观战数据，避免hydration错误
+  useEffect(() => {
+    setTodayViews(Math.floor(Math.random() * 500) + 100);
+  }, []);
+
+  // 如果store中的数据为空，使用mock数据作为fallback
+  const currentPosts = posts.length > 0 ? posts : mockPosts;
+  const currentCategories = categories.length > 0 ? categories : mockCategories;
+  const currentTags = tags.length > 0 ? tags : mockTags;
+
+  const filteredPosts = posts.length > 0 ? getFilteredPosts() : mockPosts;
   const featuredPost = filteredPosts.find(post => post.isSticky) || filteredPosts[0];
   const recentPosts = filteredPosts.slice(0, 6);
   const popularPosts = [...filteredPosts]
@@ -36,11 +50,23 @@ export default function HomePage() {
     .slice(0, 5);
 
   const stats = {
-    totalPosts: posts.length,
-    totalViews: posts.reduce((sum, post) => sum + post.views, 0),
-    totalCategories: categories.length,
-    totalTags: tags.length,
+    totalPosts: currentPosts.length,
+    totalViews: currentPosts.reduce((sum, post) => sum + post.views, 0),
+    totalCategories: currentCategories.length,
+    totalTags: currentTags.length,
   };
+
+  // 为categories添加postCount
+  const categoriesWithCount = currentCategories.map(category => ({
+    ...category,
+    postCount: currentPosts.filter(post => post.category && post.category.id === category.id).length
+  }));
+
+  // 为tags添加postCount  
+  const tagsWithCount = currentTags.map(tag => ({
+    ...tag,
+    postCount: currentPosts.filter(post => post.tags && post.tags.some(postTag => postTag.id === tag.id)).length
+  }));
 
   return (
     <Layout>
@@ -105,6 +131,11 @@ export default function HomePage() {
                   <span className="font-semibold">{stats.totalCategories}</span>
                   <span className="ml-1">个战术</span>
                 </div>
+                <div className="flex items-center bg-city-blue-800/30 rounded-full px-6 py-3 backdrop-blur-sm">
+                  <Clock className="w-6 h-6 mr-2" />
+                  <span className="font-semibold">{todayViews}</span>
+                  <span className="ml-1">今日观战</span>
+                </div>
               </div>
 
               {/* 行动按钮 */}
@@ -123,6 +154,34 @@ export default function HomePage() {
                 >
                   <CityBadgeIcon className="w-5 h-5 mr-2" />
                   了解更衣室
+                </Link>
+              </div>
+
+              {/* 快捷导航 */}
+              <div className="mt-8 flex flex-wrap justify-center gap-3 text-sm">
+                <Link 
+                  href="/posts?sort=popular"
+                  className="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-full transition-all duration-200 backdrop-blur-sm border border-white/20 hover:border-white/40"
+                >
+                  🔥 热门战报
+                </Link>
+                <Link 
+                  href="/categories"
+                  className="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-full transition-all duration-200 backdrop-blur-sm border border-white/20 hover:border-white/40"
+                >
+                  ⚽ 战术分类
+                </Link>
+                <Link 
+                  href="/tags"
+                  className="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-full transition-all duration-200 backdrop-blur-sm border border-white/20 hover:border-white/40"
+                >
+                  🏆 球员标签
+                </Link>
+                <Link 
+                  href="/archive"
+                  className="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-full transition-all duration-200 backdrop-blur-sm border border-white/20 hover:border-white/40"
+                >
+                  📚 战报归档
                 </Link>
               </div>
             </div>
@@ -155,7 +214,14 @@ export default function HomePage() {
                 <div className="flex items-center justify-between mb-8">
                   <div className="flex items-center">
                     <TacticsBoardIcon className="w-6 h-6 mr-3 text-city-blue-600" />
-                    <h2 className="text-2xl font-bold text-city-blue-900">最新战报</h2>
+                    <div>
+                      <h2 className="text-2xl font-bold text-city-blue-900">最新战报</h2>
+                      {recentPosts.length > 0 && (
+                        <p className="text-sm text-city-blue-500 mt-1">
+                          最近更新：{formatDate(recentPosts[0].publishedAt || recentPosts[0].createdAt)}
+                        </p>
+                      )}
+                    </div>
                   </div>
                   <Link 
                     href="/posts"
@@ -174,11 +240,48 @@ export default function HomePage() {
 
               {/* Sidebar - 球迷看台 */}
               <div className="space-y-8">
+                {/* Quick Search - 快速搜索 */}
+                <div className="bg-white rounded-xl shadow-football p-6 border-l-4 border-city-gold hover:shadow-trophy transition-all duration-300">
+                  <h3 className="text-xl font-bold text-city-blue-900 mb-4 flex items-center">
+                    <Search className="w-5 h-5 mr-2 text-city-gold" />
+                    快速搜索
+                  </h3>
+                  <form 
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      const formData = new FormData(e.currentTarget);
+                      const query = formData.get('search') as string;
+                      if (query.trim()) {
+                        window.location.href = `/search?q=${encodeURIComponent(query.trim())}`;
+                      }
+                    }}
+                    className="space-y-3"
+                  >
+                    <div className="relative">
+                      <input
+                        type="text"
+                        name="search"
+                        placeholder="搜索战报..."
+                        className="w-full pl-10 pr-4 py-3 border border-city-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-city-blue-500 focus:border-city-blue-500 bg-city-blue-50/50 transition-colors"
+                      />
+                      <Search className="absolute left-3 top-3.5 w-4 h-4 text-city-blue-400" />
+                    </div>
+                    <button
+                      type="submit"
+                      className="w-full bg-city-blue-600 hover:bg-city-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200"
+                    >
+                      搜索战报
+                    </button>
+                  </form>
+                </div>
+
                 {/* Popular Posts - 热门战报 */}
                 <div className="bg-white rounded-xl shadow-football p-6 border-l-4 border-city-blue-300 hover:shadow-trophy transition-all duration-300">
                   <h3 className="text-xl font-bold text-city-blue-900 mb-4 flex items-center">
-                    <TrendingUp className="w-5 h-5 mr-2 text-city-gold" />
-                    球迷热议战报
+                    <TrendingUp className="w-5 h-5 mr-2 text-city-gold animate-pulse" />
+                    <span className="bg-gradient-to-r from-city-blue-900 to-city-gold bg-clip-text text-transparent">
+                      🔥 球迷热议战报
+                    </span>
                   </h3>
                   <div className="space-y-4">
                     {popularPosts.map((post, index) => (
@@ -201,6 +304,12 @@ export default function HomePage() {
                       </div>
                     ))}
                   </div>
+                  <Link
+                    href="/posts?sort=popular"
+                    className="block mt-4 text-center text-city-blue-600 hover:text-city-blue-800 font-medium py-2 px-4 rounded-lg border border-city-blue-200 hover:border-city-blue-300 transition-all duration-200"
+                  >
+                    查看更多热议战报 →
+                  </Link>
                 </div>
 
                 {/* Categories - 战术分类 */}
@@ -210,7 +319,7 @@ export default function HomePage() {
                     战术分类
                   </h3>
                   <div className="space-y-2">
-                    {categories.slice(0, 8).map((category) => (
+                    {categoriesWithCount.slice(0, 8).map((category) => (
                       <Link
                         key={category.id}
                         href={`/categories/${category.slug}`}
@@ -240,7 +349,7 @@ export default function HomePage() {
                     球员标签
                   </h3>
                   <div className="flex flex-wrap gap-2">
-                    {tags.slice(0, 12).map((tag) => (
+                    {tagsWithCount.slice(0, 12).map((tag) => (
                       <Link
                         key={tag.id}
                         href={`/tags/${tag.slug}`}
@@ -248,11 +357,11 @@ export default function HomePage() {
                         style={{
                           backgroundColor: tag.color + '20',
                           color: tag.color,
-                          border: `1px solid ${tag.color}30`,
+                          borderColor: tag.color + '80',
+                          borderWidth: '1px'
                         }}
                       >
-                        <FootballIcon className="w-3 h-3 mr-1" />
-                        #{tag.name}
+                        <span className="mr-1.5">#</span>{tag.name}
                       </Link>
                     ))}
                   </div>
@@ -260,7 +369,7 @@ export default function HomePage() {
                     href="/tags"
                     className="block mt-4 text-center text-city-blue-600 hover:text-city-blue-800 font-medium py-2 px-4 rounded-lg border border-city-blue-200 hover:border-city-blue-300 transition-all duration-200"
                   >
-                    查看全部球员 →
+                    查看全部标签 →
                   </Link>
                 </div>
               </div>

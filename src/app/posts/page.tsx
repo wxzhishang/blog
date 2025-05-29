@@ -1,12 +1,14 @@
 'use client';
 
 import { useEffect, useState, useMemo } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Layout from '@/components/Layout/Layout';
 import PostCard from '@/components/Post/PostCard';
 import { useBlogStore } from '@/store';
 import { Search, Filter, Grid, List, Calendar, User, Tag, X } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
 import { Post, Category, Tag as TagType, User as UserType } from '@/types';
+import Link from 'next/link';
 
 interface PostFilters {
   category: string;
@@ -16,6 +18,9 @@ interface PostFilters {
 }
 
 export default function PostsPage() {
+  const searchParams = useSearchParams();
+  const sortParam = searchParams.get('sort');
+  
   const { 
     posts, 
     categories, 
@@ -42,12 +47,19 @@ export default function PostsPage() {
     category: '',
     tag: '',
     author: '',
-    sortBy: 'latest'
+    sortBy: sortParam === 'popular' ? 'popular' : 'latest'
   });
 
   useEffect(() => {
     initializeData();
   }, [initializeData]);
+
+  // 当URL参数变化时更新排序
+  useEffect(() => {
+    if (sortParam === 'popular') {
+      setFilters(prev => ({ ...prev, sortBy: 'popular' }));
+    }
+  }, [sortParam]);
 
   const filteredAndSortedPosts = useMemo(() => {
     let result = [...posts];
@@ -125,15 +137,41 @@ export default function PostsPage() {
   return (
     <Layout>
       <div className="bg-gray-50 min-h-screen">
+        {/* Breadcrumb */}
+        <div className="bg-white border-b">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+            <nav className="flex" aria-label="Breadcrumb">
+              <ol className="flex items-center space-x-2">
+                <li>
+                  <Link href="/" className="text-gray-500 hover:text-gray-700">
+                    首页
+                  </Link>
+                </li>
+                <li>
+                  <span className="text-gray-400">/</span>
+                </li>
+                <li>
+                  <span className="text-gray-900 font-medium">
+                    {sortParam === 'popular' ? '热门战报' : '全部战报'}
+                  </span>
+                </li>
+              </ol>
+            </nav>
+          </div>
+        </div>
+
         {/* Header */}
         <div className="bg-white shadow-sm">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div className="text-center">
               <h1 className="text-3xl font-bold text-gray-900 mb-4">
-                所有文章
+                {sortParam === 'popular' ? '球迷热议战报' : '所有战报'}
               </h1>
               <p className="text-lg text-gray-600 mb-8">
-                探索我们的技术文章和见解
+                {sortParam === 'popular' 
+                  ? '最受球迷关注的精彩战报' 
+                  : '探索我们的技术文章和见解'
+                }
               </p>
               
               {/* Search Bar */}
